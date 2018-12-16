@@ -13,6 +13,7 @@ const server = http.createServer((request, response) => {
   const trimmedPath = parsedURL.pathname.replace(/^\/+|\/+$/g, '');
   const httpMethod = request.method;
   const queryStringObject = parsedURL.query;
+  const headers = request.headers;
 
   response.end('Hello World!\n');
 
@@ -20,6 +21,7 @@ const server = http.createServer((request, response) => {
   console.log(`Path: ${trimmedPath}`);
   console.log(`HTTP method: ${httpMethod}`);
   console.log('Query string parameters:', queryStringObject);
+  console.log('Headers:', headers);
 });
 
 server.listen(3000, () => {
