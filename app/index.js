@@ -12,12 +12,14 @@ const server = http.createServer((request, response) => {
   const parsedURL = url.parse(request.url, true);
   const trimmedPath = parsedURL.pathname.replace(/^\/+|\/+$/g, '');
   const httpMethod = request.method;
+  const queryStringObject = parsedURL.query;
 
   response.end('Hello World!\n');
 
   console.log('Request received!');
   console.log(`Path: ${trimmedPath}`);
   console.log(`HTTP method: ${httpMethod}`);
+  console.log('Query string parameters:', queryStringObject);
 });
 
 server.listen(3000, () => {
