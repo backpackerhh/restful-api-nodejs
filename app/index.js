@@ -11,11 +11,13 @@ const url = require('url');
 const server = http.createServer((request, response) => {
   const parsedURL = url.parse(request.url, true);
   const trimmedPath = parsedURL.pathname.replace(/^\/+|\/+$/g, '');
+  const httpMethod = request.method;
 
   response.end('Hello World!\n');
 
   console.log('Request received!');
   console.log(`Path: ${trimmedPath}`);
+  console.log(`HTTP method: ${httpMethod}`);
 });
 
 server.listen(3000, () => {
