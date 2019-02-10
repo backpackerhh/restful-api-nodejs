@@ -6,7 +6,23 @@
 // Dependencies
 const http = require('http');
 const url = require('url');
-const StringDecoder = require('string_decoder').StringDecoder;
+const { StringDecoder } = require('string_decoder');
+
+// Handlers
+const handlers = {};
+
+handlers.sample = (data, callback) => {
+  callback(406, { name: 'Sample Handler' });
+};
+
+handlers.notFound = (data, callback) => {
+  callback(404);
+};
+
+// Router
+const router = {
+  sample: handlers.sample,
+};
 
 // Server
 const server = http.createServer((request, response) => {
@@ -14,7 +30,7 @@ const server = http.createServer((request, response) => {
   const trimmedPath = parsedURL.pathname.replace(/^\/+|\/+$/g, '');
   const httpMethod = request.method;
   const queryStringObject = parsedURL.query;
-  const headers = request.headers;
+  const { headers } = request;
   const decoder = new StringDecoder('utf-8');
   let buffer = '';
 
@@ -25,14 +41,26 @@ const server = http.createServer((request, response) => {
   request.on('end', () => {
     buffer += decoder.end();
 
-    response.end('Hello World!\n');
+    const chosenHandler = (trimmedPath in router) ? router[trimmedPath] : handlers.notFound;
+    const data = {
+      path: trimmedPath,
+      method: httpMethod,
+      queryStringObject: queryStringObject,
+      headers: headers,
+      payload: buffer,
+    };
 
-    console.log('Request received!');
-    console.log(`Path: ${trimmedPath}`);
-    console.log(`HTTP method: ${httpMethod}`);
-    console.log('Query string parameters:', queryStringObject);
-    console.log('Headers:', headers);
-    console.log(`Payload: ${buffer}`);
+    chosenHandler(data, (statusCode, payload) => {
+      statusCode = typeof statusCode === 'number' ? statusCode : 200;
+      payload = typeof payload === 'object' ? payload : {};
+
+      const payloadString = JSON.stringify(payload);
+
+      response.writeHead(statusCode);
+      response.end(payloadString);
+
+      console.log('Returning response: ', statusCode, payloadString);
+    });
   });
 });
 
